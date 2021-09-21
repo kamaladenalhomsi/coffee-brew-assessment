@@ -83,7 +83,12 @@ export const Card: FC<VariantCardProps> = ({
   let { buttonProps } = useButton({ elementType: 'div', onPress: onClick }, ref)
   return (
     <Link to={to}>
-      <VariantCardWrapper ref={ref} style={animationStyle} {...buttonProps}>
+      <VariantCardWrapper
+        data-testid="variant-card"
+        ref={ref}
+        style={animationStyle}
+        {...buttonProps}
+      >
         {icon}
         <VariantCardTitle>{title}</VariantCardTitle>
       </VariantCardWrapper>

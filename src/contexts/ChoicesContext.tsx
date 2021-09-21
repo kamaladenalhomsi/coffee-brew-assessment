@@ -18,16 +18,16 @@ interface Choices {
   extras?: Choice
 }
 
-interface ChoicesContext {
+interface ChoicesContextType {
   choices: Choices
   setChoices: Dispatch<SetStateAction<Choices>>
 }
 
-interface UseChoices extends ChoicesContext {
+interface UseChoices extends ChoicesContextType {
   addChoice: (choices: Choices) => void
 }
 
-const ChoicesContext = createContext<ChoicesContext | {}>({})
+const ChoicesContext = createContext<ChoicesContextType | {}>({})
 
 const ChoicesProvider: FC = ({ children }) => {
   const [choices, setChoices] = useState<Choices>({})
@@ -40,10 +40,11 @@ const ChoicesProvider: FC = ({ children }) => {
 }
 
 const useChoices = (): UseChoices => {
-  const { choices, setChoices } = useContext(ChoicesContext) as ChoicesContext
+  const { choices, setChoices } = useContext(
+    ChoicesContext
+  ) as ChoicesContextType
 
   const addChoice = (choice: Choices): void => {
-    console.log(choice, 'choice')
     setChoices((oldChoices: Choices) => ({
       ...oldChoices,
       ...choice,
@@ -61,4 +62,4 @@ const useChoices = (): UseChoices => {
   }
 }
 
-export { useChoices, ChoicesProvider }
+export { useChoices, ChoicesProvider, ChoicesContext }

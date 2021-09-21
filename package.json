@@ -47,6 +47,7 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/react-hooks": "^7.0.2",
     "typescript-plugin-styled-components": "^2.0.0"
   },
   "resolutions": {
