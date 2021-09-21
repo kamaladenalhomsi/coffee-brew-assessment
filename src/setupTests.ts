@@ -2,4 +2,10 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom'
+import { screen } from '@testing-library/react'
+
+global.checkIfExistByTestId = (testId: string) => {
+  const pageHeaderInScreen = screen.getByTestId(testId)
+  expect(pageHeaderInScreen).toBeInTheDocument()
+}
