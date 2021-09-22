@@ -123,7 +123,7 @@ export const Card: FC<VariantCardProps> = ({
   const [isAccordionActive, setAccordionActive] = useState<boolean>(expanded)
   const animationStyle = useSpring({
     delay,
-    from: { translateX: '-20%', opacity: 0 },
+    from: { translateX: '-100%', opacity: 0 },
     to: { translateX: '0', opacity: 1 },
   })
   const accordionClick = () => setAccordionActive(!isAccordionActive)
