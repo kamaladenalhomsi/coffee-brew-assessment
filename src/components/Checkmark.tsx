@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 interface CheckmarkProps {
   isSelected: any
-  style: CSSProperties
 }
 
 const CheckMarkWrapper = styled.div`
@@ -23,8 +22,8 @@ const WhiteCheckMark = styled.img`
   width: 10px;
 `
 
-export const Checkmark: FC<CheckmarkProps> = ({ isSelected, style }) => (
-  <CheckMarkWrapper aria-hidden="true" style={style}>
+export const Checkmark: FC<CheckmarkProps> = ({ isSelected }) => (
+  <CheckMarkWrapper aria-hidden="true">
     <WhiteCircle src={require('assets/images/white-circle.svg').default} />
     {isSelected && (
       <WhiteCheckMark

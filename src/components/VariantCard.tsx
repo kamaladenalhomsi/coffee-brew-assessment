@@ -101,6 +101,11 @@ const AccordionContent = styled(animated.div)`
     background-color: ${Colors.White};
   }
 `
+
+const CheckmarkWrapper = styled.div`
+  margin-left: ${Margin.Four};
+`
+
 export const Card: FC<VariantCardProps> = ({
   icon,
   title,
@@ -146,10 +151,9 @@ export const Card: FC<VariantCardProps> = ({
         {icon}
         <VariantCardTitle>{title}</VariantCardTitle>
         {selected && (
-          <Checkmark
-            style={{ marginLeft: Margin.Four }}
-            isSelected={selected}
-          />
+          <CheckmarkWrapper>
+            <Checkmark isSelected={selected} />
+          </CheckmarkWrapper>
         )}
       </VariantCardHead>
       {isAccordionActive && isAccordion && (
