@@ -78,4 +78,5 @@ export enum Colors {
   PrimaryGreen = '#AED7A0',
   PrimaryGreenDarken = '#6ea05e',
   DarkGreen = '#219653',
+  GreenShade = '#9BC88B',
 }

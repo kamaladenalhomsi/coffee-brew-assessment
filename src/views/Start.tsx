@@ -13,7 +13,7 @@ const StartBackground = styled(Link)`
 
 const AnimatedGraphic = styled(animated.img)`
   position: absolute;
-  transition: 0.5s ease-in-out;
+  transition: 0.3s ease-out;
 `
 
 const MachineGraphic = styled(AnimatedGraphic)`

@@ -1,2 +1,6 @@
 export * from './Start'
 export * from './SelectStyle'
+export * from './SelectSize'
+export * from './SelectExtras'
+export * from './Overview'
+export * from './ThankYou'

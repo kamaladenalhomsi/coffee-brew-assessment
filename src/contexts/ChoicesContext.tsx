@@ -7,16 +7,40 @@ import {
   Dispatch,
 } from 'react'
 
-interface Choice {
-  label: string
+export interface Choice {
+  title?: string
+  value?: string
+  icon?: string | undefined
+  editLink?: string
+}
+
+export interface ChoiceWithSubChoices extends Choice {
+  subChoices?: SubChoice[]
+}
+
+export interface SubChoice {
+  title: string
   value: string
 }
 
-interface Choices {
-  style?: Choice
-  size?: Choice
-  extras?: Choice
+export interface Choices {
+  style: Choice | {}
+  size: Choice | {}
+  extras: Array<ChoiceWithSubChoices>
 }
+
+type SubChoicesKeys = 'extras'
+interface addChoiceParam {
+  style?: Choice | {}
+  size?: Choice | {}
+}
+
+type pushSubChoiceType = (
+  key: SubChoicesKeys,
+  choiceWithSubChoices: ChoiceWithSubChoices
+) => void
+
+type addChoiceType = (choiceWithKey: addChoiceParam) => void
 
 interface ChoicesContextType {
   choices: Choices
@@ -24,13 +48,18 @@ interface ChoicesContextType {
 }
 
 interface UseChoices extends ChoicesContextType {
-  addChoice: (choices: Choices) => void
+  addChoice: addChoiceType
+  pushSubChoice: pushSubChoiceType
 }
 
 const ChoicesContext = createContext<ChoicesContextType | {}>({})
 
 const ChoicesProvider: FC = ({ children }) => {
-  const [choices, setChoices] = useState<Choices>({})
+  const [choices, setChoices] = useState<Choices>({
+    style: {},
+    size: {},
+    extras: [],
+  })
 
   return (
     <ChoicesContext.Provider value={{ choices, setChoices }}>
@@ -44,11 +73,36 @@ const useChoices = (): UseChoices => {
     ChoicesContext
   ) as ChoicesContextType
 
-  const addChoice = (choice: Choices): void => {
+  const addChoice: addChoiceType = (choice) => {
     setChoices((oldChoices: Choices) => ({
       ...oldChoices,
       ...choice,
     }))
+  }
+
+  const pushSubChoice: pushSubChoiceType = (key, choiceWithSubChoices) => {
+    setChoices((oldChoices: Choices) => {
+      const cloned = Object.assign({}, oldChoices)
+      const subChoiceIndex = cloned[key].findIndex(
+        (ch) => ch.value === choiceWithSubChoices.value
+      )
+      if (subChoiceIndex < 0) {
+        // add choice if it is not already added
+        cloned[key].push(choiceWithSubChoices)
+      } else {
+        if (
+          JSON.stringify(cloned[key][subChoiceIndex]) ===
+          JSON.stringify(choiceWithSubChoices)
+        ) {
+          // remove choice if the same choice is passed again (the user tapped again)
+          cloned[key].splice(subChoiceIndex, 1)
+        } else {
+          // reassign choice if choice of the same type is sent again
+          cloned[key][subChoiceIndex] = choiceWithSubChoices
+        }
+      }
+      return cloned
+    })
   }
 
   if (typeof choices === undefined) {
@@ -59,6 +113,7 @@ const useChoices = (): UseChoices => {
     choices,
     setChoices,
     addChoice,
+    pushSubChoice,
   }
 }
 

@@ -1,46 +1,57 @@
-import { ReactNode, useRef, FC } from 'react'
+import {
+  ReactNode,
+  useRef,
+  FC,
+  useState,
+  ComponentType,
+  HTMLAttributes,
+} from 'react'
 import styled from 'styled-components'
 import { Padding, Radius, Colors, Margin } from 'constants/cssValues'
 import { Container as GlobalContainer } from './Container'
 import { useSpring, animated } from 'react-spring'
 import { useButton } from '@react-aria/button'
-import { Link } from 'wouter'
+import { useLocation } from 'wouter'
+import { Checkmark } from 'components'
 
 interface VariantCardProps {
   icon?: ReactNode
   title: string | ReactNode
   delay?: number
   onClick?: () => void
-  to: string
+  to?: string | undefined | null
+  isAccordion?: boolean
+  tag?: ComponentType | keyof JSX.IntrinsicElements
+  selected?: boolean | undefined
+  expanded?: boolean
+  presentational?: boolean
 }
 
 interface ContainerProps {
   grouped?: boolean
 }
 
-interface IconProps {
-  name: string
+interface IconWrapperType {
+  noBg?: boolean
+}
+interface IconProps extends IconWrapperType {
+  name: string | undefined
   delay?: number
 }
 
 const VariantCardWrapper = styled(animated.div)`
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   position: relative;
-  min-height: 94px;
-  padding: ${Padding.Six};
   border-radius: ${Radius.Normal};
   background-color: ${Colors.PrimaryGreen};
   box-shadow: 0px 1px 4px rgba(182, 133, 133, 0.15);
-  display: flex;
-  align-items: center;
   margin-bottom: ${Margin.Two};
-  transition: 0.3s ease-in-out;
+  transition: 0.3s ease-out;
   &:last-child {
     margin-bottom: 0;
-  }
-  &:hover {
-    box-shadow: 0px 1px 4px 5px rgba(182, 133, 133, 0.15);
-    background-color: ${Colors.PrimaryGreenDarken};
   }
 `
 
@@ -48,17 +59,24 @@ const VariantCardTitle = styled.h4`
   color: ${Colors.White};
   font-weight: 600;
 `
+const VariantCardHead = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 94px;
+  padding: ${Padding.Six};
+`
 
-const IconWrapper = styled.div`
+const IconWrapper = styled.div<IconWrapperType>`
   width: 48px;
-  height: 48px;
-  background-color: ${Colors.DarkGreen};
+  height: ${(p) => (p.noBg ? 'inherit' : '48px')};
   border-radius: ${Radius.FULL};
   display: flex;
   justify-content: center;
   align-items: flex-end;
   margin-right: ${Margin.Five};
   overflow: hidden;
+  background-color: ${(p) => (p.noBg ? 'transparent' : Colors.DarkGreen)};
 `
 
 const IconImg = styled(animated.img)`
@@ -66,6 +84,23 @@ const IconImg = styled(animated.img)`
   transition: 0.5s ease-in-out;
 `
 
+const AccordionContent = styled(animated.div)`
+  width: 100%;
+  padding: ${Padding.Four};
+  position: relative;
+  &:before {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    content: '';
+    display: block;
+    width: calc(100% - ${Padding.Ten});
+    height: 1px;
+    background-color: ${Colors.White};
+  }
+`
 export const Card: FC<VariantCardProps> = ({
   icon,
   title,
@@ -73,37 +108,65 @@ export const Card: FC<VariantCardProps> = ({
   delay = 0,
   onClick,
   to,
+  isAccordion = false,
+  selected = false,
+  expanded = false,
+  presentational = false,
 }) => {
+  let accessibilityProps = {}
+  const [location, setLocation] = useLocation()
+  const [isAccordionActive, setAccordionActive] = useState<boolean>(expanded)
   const animationStyle = useSpring({
     delay,
     from: { translateX: '-20%', opacity: 0 },
     to: { translateX: '0', opacity: 1 },
   })
+  const accordionClick = () => setAccordionActive(!isAccordionActive)
   const ref = useRef(null)
-  let { buttonProps } = useButton({ elementType: 'div', onPress: onClick }, ref)
+  const navigate = () => {
+    if (onClick) onClick()
+    if (to) {
+      setLocation(to)
+    }
+  }
+  let { buttonProps } = useButton(
+    {
+      elementType: 'div',
+      onPress: isAccordion ? accordionClick : navigate,
+    },
+    ref
+  )
+  if (!presentational) {
+    accessibilityProps = buttonProps
+  }
+
   return (
-    <Link to={to}>
-      <VariantCardWrapper
-        data-testid="variant-card"
-        ref={ref}
-        style={animationStyle}
-        {...buttonProps}
-      >
+    <VariantCardWrapper data-testid="variant-card" style={animationStyle}>
+      <VariantCardHead onClick={navigate} {...accessibilityProps} ref={ref}>
         {icon}
         <VariantCardTitle>{title}</VariantCardTitle>
-      </VariantCardWrapper>
-    </Link>
+        {selected && (
+          <Checkmark
+            style={{ marginLeft: Margin.Four }}
+            isSelected={selected}
+          />
+        )}
+      </VariantCardHead>
+      {isAccordionActive && isAccordion && (
+        <AccordionContent>{children}</AccordionContent>
+      )}
+    </VariantCardWrapper>
   )
 }
 
-export const Icon = ({ name, delay = 0 }: IconProps) => {
+export const Icon = ({ name, delay = 0, noBg = false }: IconProps) => {
   const animationStyle = useSpring({
     delay,
     from: { translateY: '100%' },
     to: { translateY: '0' },
   })
   return (
-    <IconWrapper>
+    <IconWrapper noBg={noBg}>
       <IconImg
         data-testid="variant-card-icon"
         alt="Cup Icon"
@@ -128,18 +191,18 @@ export const Container = styled(GlobalContainer)<ContainerProps>`
         }
         &:last-child {
           border-radius: 0 0 ${Radius.Normal} ${Radius.Normal};
-          &:after {
-            display: none;
-          }
         }
         &:after {
+          position: absolute;
+          top: 0px;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
           content: '';
-          width: 90%;
+          display: block;
+          width: calc(100% - ${Padding.Ten});
           height: 1px;
           background-color: ${Colors.White};
-          display: block;
-          position: absolute;
-          bottom: 0;
         }
       }
     `}

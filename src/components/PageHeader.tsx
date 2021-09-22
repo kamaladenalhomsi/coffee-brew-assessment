@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Container } from './Container'
 
 interface PageHeaderProps {
-  breadCrumbTitle: string
+  breadCrumbTitle?: string
   title: string
 }
 
@@ -22,7 +22,10 @@ const PageTitle = styled.h2`
   font-size: 1.5rem;
 `
 
-export function PageHeader({ breadCrumbTitle, title }: PageHeaderProps) {
+export function PageHeader({
+  breadCrumbTitle = 'Brew with Lex',
+  title,
+}: PageHeaderProps) {
   const animationProps = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
   return (
     <Container data-testid="page-header-container">
